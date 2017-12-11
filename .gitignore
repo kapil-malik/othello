@@ -4,6 +4,7 @@
 .cache
 .project
 .classpath
+.cache-main
 /target
 /build
 .settings
