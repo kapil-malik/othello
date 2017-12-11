@@ -5,6 +5,7 @@
 .project
 .classpath
 .cache-main
+dependency-reduced-pom.xml
 /target
 /build
 .settings
