@@ -13,9 +13,9 @@ class Board(private val state:Array[Int]) {
     
     DIRECTIONS.foreach(d => {
       val (i,j) = d
-      val range = getDirectionRange(c, p, i, j)
-      if (range > 0) {
-        for (k<- 1 to range) {
+      val flipCount = getDirectionFlipCount(c, p, i, j)
+      if (flipCount > 0) {
+        for (k<- 1 to flipCount) {
           state(serPos((p._1 + i*k, p._2 + j*k))) = c
         }
       }
@@ -34,13 +34,13 @@ class Board(private val state:Array[Int]) {
       return false;
     }
     
-    return DIRECTIONS.exists(d => getDirectionRange(c, p, d._1, d._2) > 0)
+    return DIRECTIONS.exists(d => getDirectionFlipCount(c, p, d._1, d._2) > 0)
   }
     
-  def getMoveValue(c:Color, p:Position):Int = {
+  def getMoveFlipCount(c:Color, p:Position):Int = {
     if (!isMoveValid(c, p)) return 0;
     
-    DIRECTIONS.map(d => getDirectionRange(c, p, d._1, d._2))
+    DIRECTIONS.map(d => getDirectionFlipCount(c, p, d._1, d._2))
               .reduce(_+_)
   }
   
@@ -73,7 +73,7 @@ class Board(private val state:Array[Int]) {
   
   private def getPositionValue(p:Position):Color = state(serPos(p))
       
-  private def getDirectionRange(c:Color, p:Position, dx:Int, dy:Int):Int = {
+  private def getDirectionFlipCount(c:Color, p:Position, dx:Int, dy:Int):Int = {
     var _p = (p._1 + dx, p._2 + dy)
     val c2 = other(c)
     

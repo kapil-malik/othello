@@ -1,6 +1,6 @@
 package com.kmalik.othello.lib
 
-import com.kmalik.othello.lib.algo.RandomMaxValueAlgo
+import com.kmalik.othello.lib.algo.RandomMaxFlipsAlgo
 import com.kmalik.othello.lib.types.Board
 import com.kmalik.othello.lib.types.Board._
 import com.kmalik.othello.lib.types.Game
@@ -9,7 +9,7 @@ import com.kmalik.othello.lib.types.audit.MovesFileAuditor
 import com.kmalik.othello.lib.algo.OthelloAlgo
 import com.kmalik.othello.lib.algo.FirstMoveAlgo
 import com.kmalik.othello.lib.algo.RandomMoveAlgo
-import com.kmalik.othello.lib.algo.FirstMaxValueAlgo
+import com.kmalik.othello.lib.algo.FirstMaxFlipsAlgo
 import com.kmalik.othello.lib.types.audit.SimpleAuditor
 
 
@@ -17,7 +17,7 @@ object Main {
   
   def main(args:Array[String]):Unit = {
     
-    val mode = readArg(args, "mode", "play")
+    val mode = Utils.readArg(args, "mode", "play")
     
     mode match {
       case "genMoveData" => genMoveData(args)
@@ -31,7 +31,7 @@ object Main {
   private def help(args:Array[String]):Unit = {
     println("Usage: --mode=[play | genMoveData | readMoveData | help]")
     
-    val api = readArg(args, "api", "help")
+    val api = Utils.readArg(args, "api", "help")
     
     api match {
       case "help" => {
@@ -70,11 +70,11 @@ object Main {
   }
   
   private def play(args:Array[String]):Unit = {
-    val pace = readArg(args, "pace", 1)
-    val algo1 = getAlgo(readArg(args, "algo1", "randomMax"))
-    val algo2 = getAlgo(readArg(args, "algo2", "randomMax"))
-    val name1 = readArg(args, "name1", "Black")
-    val name2 = readArg(args, "name2", "White")
+    val pace = Utils.readArg(args, "pace", 1)
+    val algo1 = getAlgo(Utils.readArg(args, "algo1", "randomMax"))
+    val algo2 = getAlgo(Utils.readArg(args, "algo2", "randomMax"))
+    val name1 = Utils.readArg(args, "name1", "Black")
+    val name2 = Utils.readArg(args, "name2", "White")
     Game.newGame(
         new Player(name1, BLACK, algo1), 
         new Player(name2, WHITE, algo2), 
@@ -83,9 +83,9 @@ object Main {
   }
   
   private def readMoveData(args:Array[String]):Unit = {
-    val file = readArg(args, "file")
-    val gameCount = readArg(args, "gameCount", 1)
-    val pace = readArg(args, "pace", 1)
+    val file = Utils.readArg(args, "file")
+    val gameCount = Utils.readArg(args, "gameCount", 1)
+    val pace = Utils.readArg(args, "pace", 1)
     
     val gameHistorySeq = MovesFileAuditor.read(file)
     for (i<- 0 to gameCount) {
@@ -105,10 +105,10 @@ object Main {
   }
   
   private def genMoveData(args:Array[String]):Unit = {
-    val file = readArg(args, "file")
-    val gameCount = readArg(args, "gameCount", 1)
-    val algo1 = getAlgo(readArg(args, "algo1", "randomMax"))
-    val algo2 = getAlgo(readArg(args, "algo2", "randomMax"))
+    val file = Utils.readArg(args, "file")
+    val gameCount = Utils.readArg(args, "gameCount", 1)
+    val algo1 = getAlgo(Utils.readArg(args, "algo1", "randomMax"))
+    val algo2 = getAlgo(Utils.readArg(args, "algo2", "randomMax"))
     val cp = if (gameCount > 10) gameCount / 10 else gameCount
     
     println("Generating data")
@@ -129,66 +129,12 @@ object Main {
     algo.toLowerCase() match {
       case "firstmove" => FirstMoveAlgo()
       case "randommove" => RandomMoveAlgo()
-      case "firstmax" => FirstMaxValueAlgo()
-      case "randommax" => RandomMaxValueAlgo()
+      case "firstmax" => FirstMaxFlipsAlgo()
+      case "randommax" => RandomMaxFlipsAlgo()
       case _ => {
         println(s"No algo found for $algo, using RandomMove")
         RandomMoveAlgo()
       }
-    }
-  }
-  
-  private def readArg(args:Array[String],name:String):String = {
-    val prefix = "--"+name+"="
-    val argOpt = args.find(_.startsWith(prefix))
-    if (argOpt.isDefined) {
-      argOpt.get.substring(prefix.length())
-    } else {
-      throw new RuntimeException(s"$name not provided")
-    }
-  }
-  
-  private def readArg(args:Array[String],name:String,defValue:String):String = {
-    val prefix = "--"+name+"="
-    val argOpt = args.find(_.startsWith(prefix))
-    if (argOpt.isDefined) {
-      argOpt.get.substring(prefix.length())
-    } else {
-      println(s"No argument passed for $name, using $defValue") 
-      defValue
-    }
-  }
-  
-  private def readArg(args:Array[String],name:String,defValue:Int):Int = {
-    val prefix = "--"+name+"="
-    val argOpt = args.find(_.startsWith(prefix))
-    if (argOpt.isDefined) {
-      argOpt.get.substring(prefix.length()).toInt
-    } else {
-      println(s"No argument passed for $name, using $defValue") 
-      defValue
-    }
-  }
-  
-  private def readArg(args:Array[String],name:String,defValue:Long):Long = {
-    val prefix = "--"+name+"="
-    val argOpt = args.find(_.startsWith(prefix))
-    if (argOpt.isDefined) {
-      argOpt.get.substring(prefix.length()).toLong
-    } else {
-      println(s"No argument passed for $name, using $defValue") 
-      defValue
-    }
-  }
-  
-  private def readArg(args:Array[String],name:String,defValue:Boolean):Boolean = {
-    val prefix = "--"+name+"="
-    val argOpt = args.find(_.startsWith(prefix))
-    if (argOpt.isDefined) {
-      argOpt.get.substring(prefix.length()).toBoolean
-    } else {
-      println(s"No argument passed for $name, using $defValue") 
-      defValue
     }
   }
   
